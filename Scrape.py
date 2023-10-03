@@ -2,24 +2,11 @@ import mechanize
 import pandas as pd
 import itertools
 import requests
-from bs4 import BeautifulSoup
 
 alphabets = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 keywords = [''.join(i) for i in itertools.product(alphabets, repeat = 2)]
 
 url = r'https://statecontracts.nebraska.gov/Search'
-request = mechanize.Request(url)
-response = mechanize.urlopen(request)
-forms = mechanize.ParseResponse(response, backwards_compat=False)
-response.close()
-
-form = forms[0]
-
-form['ctl00$ContentPlaceHolder1$MainContentControl1$ctl00$txtLastName']='Smith'
-form['ctl00$ContentPlaceHolder1$MainContentControl1$ctl00$txtPostalCode']='K1H'
-
-print mechanize.urlopen(form.click()).read()
-
 
 br = mechanize.Browser()
 
@@ -73,7 +60,16 @@ for key in keywords:
 
 full_data = pd.concat(data)
 baseurl = r'https://statecontracts.nebraska.gov'
-full_data = full_data.apply(lambda col: [v[0] if v[1] is None else f'{baseurl}{v[1]}' for v in  col])
-
-
+full_data["url"] = [pd.NA if pd.isna(i) else baseurl + i[1] for i in full_data["Doc Number"]]
+full_data["Doc Number"] = [pd.NA if pd.isna(i) else i[0] for i in full_data["Doc Number"]]
+full_data = full_data.loc[~full_data["Doc Number"].isin(["1", "F", "P", "N", "L"]),:]
+full_data = full_data.loc[~pd.isna(full_data["Doc Number"])]
+full_data["Type"] = [i[0] for i in full_data["Type"]]
+full_data["Entity"] = [i[0] for i in full_data["Entity"]]
+full_data["Entity Name"] = [i[0] for i in full_data["Entity Name"]]
+full_data["Vendor"] = [i[0] for i in full_data["Vendor"]]
+full_data["Amount"] = [i[0] for i in full_data["Amount"]]
+full_data["Begin Date"] = [i[0] for i in full_data["Begin Date"]]
+full_data["End Date"] = [i[0] for i in full_data["End Date"]]
+full_data = full_data.drop_duplicates()
 full_data.to_csv("Scraped_Contracts.csv")
