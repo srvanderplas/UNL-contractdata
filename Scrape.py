@@ -1,5 +1,3 @@
-url = 'https://statecontracts.nebraska.gov/Search'
-
 import mechanize
 import pandas as pd
 import itertools
@@ -74,4 +72,5 @@ for key in keywords[0:5]:
 
 
 full_data = pd.concat(data)
-full_data = full_data.apply(lambda col: [v[0] if v[1] is None else f'{base_url}{v[1]}' for v in  col])
+baseurl = r'https://statecontracts.nebraska.gov'
+full_data = full_data.apply(lambda col: [v[0] if v[1] is None else f'{baseurl}{v[1]}' for v in  col])
