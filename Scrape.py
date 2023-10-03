@@ -36,7 +36,7 @@ br.set_handle_robots(False)
 
 data = list()
 
-for key in keywords[0:5]:
+for key in keywords:
     
   br.open(url)
   response = br.response()
@@ -74,3 +74,6 @@ for key in keywords[0:5]:
 full_data = pd.concat(data)
 baseurl = r'https://statecontracts.nebraska.gov'
 full_data = full_data.apply(lambda col: [v[0] if v[1] is None else f'{baseurl}{v[1]}' for v in  col])
+
+
+full_data.to_csv("Scraped_Contracts.csv")
